@@ -3,7 +3,7 @@ import os
 
 app = Flask(__name__)
 
-# Sukuriame failus, jei jie neegzistuoja
+# Create necessary files if they do not exist
 def create_files():
     users_file = os.path.join(app.root_path, 'users.txt')
     notes_file = os.path.join(app.root_path, 'notes.txt')
@@ -12,27 +12,27 @@ def create_files():
             with open(file, 'w'):
                 pass
 
-# Funkcija, kuri skaito vartotojus iš failo
+# Read users from file
 def read_users():
     users_file = os.path.join(app.root_path, 'users.txt')
     with open(users_file, 'r', encoding='utf-8') as file:
         users = file.readlines()
     return [user.strip() for user in users]
 
-# Funkcija, kuri rašo vartotojus į failą
+# Write a new user to the file
 def write_user(username):
     users_file = os.path.join(app.root_path, 'users.txt')
     with open(users_file, 'a', encoding='utf-8') as file:
         file.write(username + '\n')
 
-# Funkcija, kuri skaito užrašus iš failo
+# Read notes from file
 def read_notes():
     notes_file = os.path.join(app.root_path, 'notes.txt')
     with open(notes_file, 'r', encoding='utf-8') as file:
         notes = file.readlines()
     return [note.strip() for note in notes]
 
-# Funkcija, kuri rašo užrašus į failą
+# Write a new note to the file
 def write_note(note_content):
     notes_file = os.path.join(app.root_path, 'notes.txt')
     with open(notes_file, 'a', encoding='utf-8') as file:
@@ -45,21 +45,14 @@ def index():
 
 @app.route('/add_note', methods=['POST'])
 def add_note():
-    note_content = request.form['note']
-    write_note(note_content)
+    note_content = request.form.get('note')
+    if note_content:  # Check if the note content is not empty
+        write_note(note_content)
     return redirect(url_for('index'))
-
-@app.route('/users', methods=['GET'])
-def get_users():
-    users = read_users()
-    return render_template('users.html', users=users)
-
-@app.route('/users', methods=['POST'])
-def add_user():
-    new_user = request.form['username']
-    write_user(new_user)
-    return redirect(url_for('get_users'))
 
 if __name__ == '__main__':
     create_files()
     app.run(debug=True)
+
+
+
